@@ -44,6 +44,7 @@ typedef struct position_s
 	int32_t z;
 } position;
 
+typedef uint64_t uuid[2];
 typedef struct data_value_s
 {
 	data_type type;
@@ -65,7 +66,7 @@ typedef struct data_value_s
 		uint8_t _angle;
 
 		/* hi then lo */
-		int64_t _uuid[2];
+		uuid _uuid;
 	};
 } data_value;
 void free_data_value(void *value);
@@ -102,12 +103,43 @@ struct wraparound
 
 bool packet_read(struct packet *packet, uint8_t *data, int data_size, client_state state);
 
+bool packet_write(struct packet *packet, uint8_t **data);
 /*  read_max: the max amount of bytes that can be read theoretically without a memory access exception
 	size: a pointer to an int that is filled with the amount of bytes read
 */
-bool __read_varint(uint8_t *data, int read_max, int32_t *_varint, int *size);
-bool __read_string(uint8_t *data, int read_max, char **_string, int *size);
+bool __read_bool(uint8_t *data, int read_max, bool *_bool, int *size);
+bool __read_byte(uint8_t *data, int read_max, int8_t *_byte, int *size);
+bool __read_unsigned_byte(uint8_t *data, int read_max, uint8_t *_unsigned_byte, int *size);
+bool __read_short(uint8_t *data, int read_max, int16_t *_short, int *size);
 bool __read_unsigned_short(uint8_t *data, int read_max, uint16_t *_unsigned_short, int *size);
+bool __read_int(uint8_t *data, int read_max, int32_t *_int, int *size);
+bool __read_long(uint8_t *data, int read_max, int64_t *_long, int *size);
+bool __read_float(uint8_t *data, int read_max, float *_float, int *size);
+bool __read_double(uint8_t *data, int read_max, double *_double, int *size);
+bool __read_string(uint8_t *data, int read_max, char **_string, int *size);
+bool __read_varint(uint8_t *data, int read_max, int32_t *_varint, int *size);
+bool __read_varlong(uint8_t *data, int read_max, int64_t *_varlong, int *size);
+bool __read_position(uint8_t *data, int read_max, position *_position, int *size);
+bool __read_angle(uint8_t *data, int read_max, int8_t *_angle, int *size);
+bool __read_uuid(uint8_t *data, int read_max, uuid *uuid, int *size);
+
+
+uint8_t *__write_bool(bool _bool, int *size);
+uint8_t *__write_byte(int8_t _byte, int *size);
+uint8_t *__write_unsigned_byte(uint8_t _unsigned_byte, int *size);
+uint8_t *__write_short(int16_t _short, int *size);
+uint8_t *__write_unsigned_short(uint16_t _unsigned_short, int *size);
+uint8_t *__write_int(int32_t _int, int *size);
+uint8_t *__write_long(int64_t _long, int *size);
+uint8_t *__write_float(float _float, int *size);
+uint8_t *__write_double(double _double, int *size);
+uint8_t *__write_string(const char *_string, int *size);
+uint8_t *__write_varint(int32_t _varint, int *size);
+uint8_t *__write_varlong(int64_t _varlong, int *size);
+uint8_t *__write_position(position _position, int *size);
+uint8_t *__write_angle(int8_t _angle, int *size);
+uint8_t *__write_uuid(uuid uuid, int *size);
+
 
 bool should_wraparound(uint8_t *data, int data_size, struct wraparound *cutoff);
 

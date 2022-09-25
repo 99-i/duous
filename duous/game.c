@@ -8,9 +8,9 @@
 #include <lualib.h>
 #include <stdlib.h>
 #include <string.h>
+#include <assert.h>
 
-static void
-dumpstack(lua_State *L)
+static void dumpstack(lua_State *L)
 {
 	int top = lua_gettop(L);
 	if(top == 0)
@@ -40,8 +40,8 @@ dumpstack(lua_State *L)
 		}
 	}
 }
-struct game *
-	game_create(void)
+
+struct game *game_create(void)
 {
 	struct game *game = malloc(sizeof(*game));
 	game->id = id();
@@ -263,6 +263,9 @@ static int CHOST_Client_set_state(lua_State *L)
 	return 0;
 }
 
+
+//gets the struct packet * from a lua state (the packet object on the top of the stack)
+struct packet *lua_State_get_packet(lua_State *L);
 //clientbound packet object:
 //id: number
 //values: array of values
@@ -271,7 +274,36 @@ static int CHOST_Client_set_state(lua_State *L)
 
 static int CHOST_Client_send_packet(lua_State *L)
 {
+	struct game *game = lua_state_get_game(L);
+	struct server *server = game->server;
+	struct client *client = NULL;
+	bool found_client = false;
+	struct packet *packet = lua_State_get_packet(L);
+	int client_id = lua_tonumber(L, -2);
+	int i;
+	lua_pop(L, -2);
 
+	for(i = 0; i < server->num_clients; i++)
+	{
+		client = server->clients[i];
+		if(client->id == client_id)
+		{
+			found_client = true;
+			break;
+		}
+	}
+
+	if(found_client)
+	{
+	}
+
+}
+
+
+struct packet *lua_State_get_packet(lua_State *L)
+{
+	assert(false && "TODO");
+	return NULL;
 }
 
 const char *client_state_to_cstr(client_state state)
