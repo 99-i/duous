@@ -1,0 +1,32 @@
+
+notes:
+    repl
+    to reload, just reset the lua state and call prep again
+
+classes:
+    ServerboundPacket: table {
+        id: number
+        direction: 'CLIENTBOUND' or 'SERVERBOUND'
+        name: string
+        fields: arbitrary table {
+            [key]: [value]
+        }
+    }
+
+    Client: number & {
+        get_state(): string
+        set_state(string): void
+    }
+functions:
+    __duous_packet_listener: registers a callback in the form
+                             fn(client_id: number, packet_data: packet_data)
+                             that is called whenever a packet is received by a client
+    __Client:get_state(client_id: number): get the state of a client by its id
+    __Client:set_state(client_id: number, state: string): set the state of a client by its id
+    __Client:send_packet(client_id: number, packet: clientbound_packet_data): sends a packet
+                             which is defined by:
+                             clientbound packet object:
+                             id: number
+                             values: array of values
+                             types: array of types
+                             such that types[i] corresponds to the type of the value in values[i]
