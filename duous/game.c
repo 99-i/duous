@@ -12,6 +12,7 @@
 
 static void dumpstack(lua_State *L)
 {
+	printf("---------------------\n");
 	int top = lua_gettop(L);
 	if(top == 0)
 	{
@@ -45,6 +46,7 @@ struct game *game_create(void)
 {
 	struct game *game = malloc(sizeof(*game));
 	game->id = id();
+	game->lua_ready = false;
 	game->L = luaL_newstate();
 	game->tick_count = 0;
 	game->update_counter = 0;
@@ -54,10 +56,12 @@ struct game *game_create(void)
 
 	uv_loop_init(&game->game_loop);
 	uv_timer_init(&game->game_loop, &game->tick_timer);
+	uv_fs_event_init(&game->game_loop, &game->fs_event);
 
 	return game;
 }
 void game_timer_cb(uv_timer_t *timer);
+void game_fs_event_cb(uv_fs_event_t *handle, const char *filename, int events, int status);
 void game_tick(struct game *game);
 
 void game_run_main_lua(struct game *game);
@@ -69,8 +73,24 @@ void game_start(struct game *game)
 	game_run_main_lua(game);
 
 	uv_timer_start(&game->tick_timer, game_timer_cb, 0, 1000 / 100);
+
+
+	uv_fs_event_start(&game->fs_event, game_fs_event_cb, "lib/", UV_FS_EVENT_RECURSIVE);
+
 	uv_run(&game->game_loop, UV_RUN_DEFAULT);
 }
+
+void game_restart_lua(struct game *game)
+{
+	if(!game->lua_ready) return;
+	game->lua_ready = false;
+	LOGFMT(GAMETAG(), ("Restarting Lua-Engine..."));
+	lua_close(game->L);
+	game->L = luaL_newstate();
+	game_prep_lua(game);
+	game_run_main_lua(game);
+}
+
 
 void game_run_main_lua(struct game *game)
 {
@@ -99,6 +119,7 @@ void game_run_main_lua(struct game *game)
 	while(FindNextFile(find_handle, &find_data));
 
 	FindClose(find_handle);
+	game->lua_ready = true;
 }
 
 #pragma region Lua C Host Functions
@@ -272,6 +293,8 @@ struct packet *lua_State_get_packet(lua_State *L);
 //types: array of types
 //such that types[i] corresponds to the type of the value in values[i]
 
+//first, construct a struct packet. then, turn it
+//into byte data with packet_write. finally, send it to the client.
 static int CHOST_Client_send_packet(lua_State *L)
 {
 	struct game *game = lua_state_get_game(L);
@@ -281,6 +304,14 @@ static int CHOST_Client_send_packet(lua_State *L)
 	struct packet *packet = lua_State_get_packet(L);
 	int client_id = lua_tonumber(L, -2);
 	int i;
+	int size;
+	uint8_t *data;
+
+	if(!packet)
+	{
+		return 0;
+	}
+
 	lua_pop(L, -2);
 
 	for(i = 0; i < server->num_clients; i++)
@@ -295,15 +326,11 @@ static int CHOST_Client_send_packet(lua_State *L)
 
 	if(found_client)
 	{
+		data = packet_write(packet, &size);
+		client_send_packet_data(client, data, size);
 	}
 
-}
-
-
-struct packet *lua_State_get_packet(lua_State *L)
-{
-	assert(false && "TODO");
-	return NULL;
+	return 0;
 }
 
 const char *client_state_to_cstr(client_state state)
@@ -356,6 +383,16 @@ void game_timer_cb(uv_timer_t *timer)
 	}
 }
 
+void game_fs_event_cb(uv_fs_event_t *handle, const char *filename, int events, int status)
+{
+	struct game *game = (struct game *) ((char *) handle - offsetof(struct game, fs_event));
+	LOGFMT(GAMETAG(), ("%s", filename));
+	if(events & UV_CHANGE)
+	{
+		game_restart_lua(game);
+	}
+}
+
 void game_tick(struct game *game)
 {
 	game->tick_count++;
@@ -367,7 +404,6 @@ void game_new_player(struct game *game, struct client *client)
 	game->num_players++;
 	game->players = realloc(game->players, sizeof(*game->players) * game->num_players);
 	game->players[game->num_players - 1] = player;
-	LOGFMT(GAMETAG(), ("Added client with ID %d", client->id));
 }
 
 void game_player_disconnected(struct game *game, struct client *client)
@@ -404,21 +440,7 @@ void game_get_packet(struct game *game, struct client *client, struct packet *pa
 	int i, j, k;
 	int size;
 	struct player *player = NULL;
-	struct form *form = NULL;
-	bool found_form = false;
 
-	for(i = 0; i < NUM_FORMS; i++)
-	{
-		form = &forms[i];
-		if(form->id == packet->id && form->state == client->state)
-		{
-			found_form = true;
-			break;
-		}
-	}
-
-	if(!found_form)
-		return;
 
 	for(i = 0; i < game->num_players; i++)
 	{
@@ -430,6 +452,7 @@ void game_get_packet(struct game *game, struct client *client, struct packet *pa
 	if(player == NULL)
 		return;
 
+	if(!game->lua_ready) return;
 	lua_getglobal(game->L, PACKET_LISTENER_ARRAY_NAME);
 
 	size = luaL_len(game->L, -1);
@@ -450,6 +473,7 @@ void lua_push_packet_object(lua_State *L, struct packet *packet)
 {
 	const char *direction_str = packet_direction_str(packet->direction);
 	int i;
+	int j;
 	lua_newtable(L);
 	lua_pushstring(L, "id");
 	lua_pushnumber(L, packet->id);
@@ -514,7 +538,16 @@ void lua_push_packet_object(lua_State *L, struct packet *packet)
 			case DTUUID:
 				LOGFMT(LUATAG(), ("Not supported yet."));
 				break;
+			case DTBYTE_ARRAY:
+				lua_newtable(L);
+				for(j = 0; j < v->_byte_array.size; j++)
+				{
+					lua_pushnumber(L, v->_byte_array.data[i]);
+					lua_rawseti(L, -2, i + 1);
+				}
+				break;
 			default:
+				assert(false && "Unsupported");
 				break;
 		}
 		lua_settable(L, -3);

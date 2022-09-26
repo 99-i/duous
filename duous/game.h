@@ -10,9 +10,10 @@ struct game
 	int id;
 
 	lua_State *L;
-
+	bool lua_ready;
 	uv_loop_t game_loop;
 	uv_timer_t tick_timer;
+	uv_fs_event_t fs_event;
 
 	int update_counter;
 	int tick_count;
@@ -27,6 +28,8 @@ struct game
 struct game *game_create(void);
 
 void game_start(struct game *game);
+
+void game_restart_lua(struct game *game);
 
 void game_new_player(struct game *game, struct client *client);
 void game_player_disconnected(struct game *game, struct client *client);

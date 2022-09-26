@@ -3,8 +3,8 @@
 
 struct player
 {
-    char *username;
-    struct client *client;
+	char *username;
+	struct client *client;
 };
 
 struct player *player_create(struct client *client);

@@ -21,4 +21,5 @@ struct client
 
 struct client *client_create(struct server *server);
 
+void client_send_packet_data(struct client *client, uint8_t *packet_data, int packet_data_size);
 void client_destroy(struct client *client);

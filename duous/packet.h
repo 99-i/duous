@@ -2,6 +2,7 @@
 #include "map.h"
 #include "stdint.h"
 #include "client.h"
+#include <lua.h>
 
 typedef enum packet_direction_e
 {
@@ -33,7 +34,7 @@ typedef enum data_type_e
 	/*OPTIONAL_X,*/
 	/*ARRAY_OF_X,*/
 	/*X_ENUM,*/
-	/*BYTE_ARRAY,*/
+	DTBYTE_ARRAY,
 	NUM_DATA_TYPES
 } data_type;
 
@@ -44,7 +45,15 @@ typedef struct position_s
 	int32_t z;
 } position;
 
+
 typedef uint64_t uuid[2];
+
+typedef struct byte_array_s
+{
+	int size;
+	uint8_t *data;
+} byte_array;
+
 typedef struct data_value_s
 {
 	data_type type;
@@ -64,9 +73,11 @@ typedef struct data_value_s
 		int64_t _varlong;
 		position _position;
 		uint8_t _angle;
-
 		/* hi then lo */
 		uuid _uuid;
+		byte_array _byte_array;
+
+
 	};
 } data_value;
 void free_data_value(void *value);
@@ -88,10 +99,10 @@ struct form
 	{
 		data_type type;
 		const char *name;
-	} fields[4];
+	} fields[7];
 };
 
-#define NUM_FORMS 2
+#define NUM_FORMS 40
 extern struct form forms[NUM_FORMS];
 
 struct wraparound
@@ -103,10 +114,16 @@ struct wraparound
 
 bool packet_read(struct packet *packet, uint8_t *data, int data_size, client_state state);
 
-bool packet_write(struct packet *packet, uint8_t **data);
+uint8_t *packet_write(struct packet *packet, int *size);
 /*  read_max: the max amount of bytes that can be read theoretically without a memory access exception
 	size: a pointer to an int that is filled with the amount of bytes read
 */
+
+struct packet *lua_State_get_packet(lua_State *L);
+
+bool __read_byte_array(uint8_t *data, int read_max, uint8_t **_byte_array, int *size, int array_size);
+
+
 bool __read_bool(uint8_t *data, int read_max, bool *_bool, int *size);
 bool __read_byte(uint8_t *data, int read_max, int8_t *_byte, int *size);
 bool __read_unsigned_byte(uint8_t *data, int read_max, uint8_t *_unsigned_byte, int *size);
