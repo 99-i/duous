@@ -29,3 +29,6 @@ void setcolor(enum Color color);
 void setbgcolor(enum Color color);
 /* set cursor position */
 void setcurpos(int x, int y);
+
+void setcaret(void);
+void deletecaret(void);

@@ -143,11 +143,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="application.c" />
     <ClCompile Include="client.c" />
     <ClCompile Include="console.c" />
     <ClCompile Include="game.c" />
     <ClCompile Include="id.c" />
+    <ClCompile Include="lfs.c" />
+    <ClCompile Include="linit.c" />
     <ClCompile Include="logger.c" />
     <ClCompile Include="main.c" />
     <ClCompile Include="map.c" />
@@ -157,12 +158,13 @@
     <ClCompile Include="server.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="application.h" />
     <ClInclude Include="client.h" />
     <ClInclude Include="console.h" />
     <ClInclude Include="game.h" />
     <ClInclude Include="id.h" />
+    <ClInclude Include="lfs.h" />
     <ClInclude Include="logger.h" />
+    <ClInclude Include="lprefix.h" />
     <ClInclude Include="main.h" />
     <ClInclude Include="map.h" />
     <ClInclude Include="packet.h" />

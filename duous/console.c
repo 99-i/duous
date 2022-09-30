@@ -8,85 +8,86 @@
 
 #include <stdio.h>
 #include "console.h"
+#include "main.h"
 #if defined(_WIN32)
 #include <io.h>
 #include <windows.h>
 
 static WORD win_default_attributes(HANDLE hConsole)
 {
-    static WORD defaultAttributes = 0;
-    CONSOLE_SCREEN_BUFFER_INFO info;
+	static WORD defaultAttributes = 0;
+	CONSOLE_SCREEN_BUFFER_INFO info;
 
-    if (!defaultAttributes && GetConsoleScreenBufferInfo(hConsole, &info))
-    {
-        defaultAttributes = info.wAttributes;
-    }
+	if(!defaultAttributes && GetConsoleScreenBufferInfo(hConsole, &info))
+	{
+		defaultAttributes = info.wAttributes;
+	}
 
-    return defaultAttributes;
+	return defaultAttributes;
 }
 
 static void win_set_attributes(int fg, int bg)
 {
-    WORD defaultAttributes;
-    CONSOLE_SCREEN_BUFFER_INFO info;
-    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+	WORD defaultAttributes;
+	CONSOLE_SCREEN_BUFFER_INFO info;
+	HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 
-    defaultAttributes = win_default_attributes(hConsole);
+	defaultAttributes = win_default_attributes(hConsole);
 
-    if (fg == -1 && bg == -1)
-    {
-        SetConsoleTextAttribute(hConsole, defaultAttributes);
-        return;
-    }
+	if(fg == -1 && bg == -1)
+	{
+		SetConsoleTextAttribute(hConsole, defaultAttributes);
+		return;
+	}
 
-    if (!GetConsoleScreenBufferInfo(hConsole, &info))
-    {
-        return;
-    }
+	if(!GetConsoleScreenBufferInfo(hConsole, &info))
+	{
+		return;
+	}
 
-    if (fg != -1)
-    {
-        info.wAttributes &= ~(info.wAttributes & 0x0F);
-        info.wAttributes |= (WORD)fg;
-    }
+	if(fg != -1)
+	{
+		info.wAttributes &= ~(info.wAttributes & 0x0F);
+		info.wAttributes |= (WORD) fg;
+	}
 
-    if (bg != -1)
-    {
-        info.wAttributes &= ~(info.wAttributes & 0xF0);
-        info.wAttributes |= (WORD)bg;
-    }
+	if(bg != -1)
+	{
+		info.wAttributes &= ~(info.wAttributes & 0xF0);
+		info.wAttributes |= (WORD) bg;
+	}
 
-    SetConsoleTextAttribute(hConsole, info.wAttributes);
+	SetConsoleTextAttribute(hConsole, info.wAttributes);
 }
 
 static void win_set_cursor_position(int x, int y)
 {
-    COORD pos;
-    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+	COORD pos;
+	HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 
-    pos.X = x;
-    pos.Y = y;
-    SetConsoleCursorPosition(hConsole, pos);
+	pos.X = x;
+	pos.Y = y;
+	SetConsoleCursorPosition(hConsole, pos);
 }
 
 static void win_clear_console()
 {
-    WORD defaultAttributes;
-    COORD topLeft = {0, 0};
-    DWORD written;
-    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-    CONSOLE_SCREEN_BUFFER_INFO info;
+	WORD defaultAttributes;
+	COORD topLeft = {0, 0};
+	DWORD written;
+	HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+	CONSOLE_SCREEN_BUFFER_INFO info;
 
-    defaultAttributes = win_default_attributes(hConsole);
+	defaultAttributes = win_default_attributes(hConsole);
 
-    if (!GetConsoleScreenBufferInfo(hConsole, &info))
-    {
-        return;
-    }
+	if(!GetConsoleScreenBufferInfo(hConsole, &info))
+	{
+		return;
+	}
 
-    FillConsoleOutputCharacterA(hConsole, ' ', info.dwSize.X * info.dwSize.Y, topLeft, &written);
-    FillConsoleOutputAttribute(hConsole, info.wAttributes, info.dwSize.X * info.dwSize.Y, topLeft, &written);
-    win_set_cursor_position(topLeft.X, topLeft.Y);
+	FillConsoleOutputCharacterA(hConsole, ' ', info.dwSize.X * info.dwSize.Y, topLeft, &written);
+	FillConsoleOutputAttribute(hConsole, info.wAttributes, info.dwSize.X * info.dwSize.Y, topLeft, &written);
+	win_set_cursor_position(topLeft.X, topLeft.Y);
 }
 
 #elif defined(__APPLE__) || defined(__unix__) || defined(__unix)
@@ -99,288 +100,315 @@ static void win_clear_console()
 static int is_terminal(FILE *out)
 {
 #if defined(_MSC_VER)
-    return _isatty(_fileno(out)) != 0;
+	return _isatty(_fileno(out)) != 0;
 #else
-    return isatty(fileno(out)) != 0;
+	return isatty(fileno(out)) != 0;
 #endif
 }
 
 void clear(void)
 {
-    if (is_terminal(stdout))
-    {
+	if(is_terminal(stdout))
+	{
 #if defined(_WIN32)
-        win_clear_console();
+		win_clear_console();
 #else
-        fprintf(stdout, "\033[2J\033[;H");
+		fprintf(stdout, "\033[2J\033[;H");
 #endif
-    }
+	}
 }
 
 void reset(void)
 {
-    if (is_terminal(stdout))
-    {
+	if(is_terminal(stdout))
+	{
 #if defined(_WIN32)
-        win_set_attributes(-1, -1);
+		win_set_attributes(-1, -1);
 #else
-        fprintf(stdout, "\033[00m");
+		fprintf(stdout, "\033[00m");
 #endif
-    }
+	}
 }
 
 void setcolor(enum Color color)
 {
-    if (is_terminal(stdout))
-    {
-        switch (color)
-        {
-        case BLACK:
+	if(is_terminal(stdout))
+	{
+		switch(color)
+		{
+			case BLACK:
 #if defined(_WIN32)
-            win_set_attributes(0, -1);
+				win_set_attributes(0, -1);
 #else
-            fprintf(stdout, "%s", "\033[30m");
+				fprintf(stdout, "%s", "\033[30m");
 #endif
-            break;
-        case NAVY:
+				break;
+			case NAVY:
 #if defined(_WIN32)
-            win_set_attributes(FOREGROUND_BLUE, -1);
+				win_set_attributes(FOREGROUND_BLUE, -1);
 #else
-            fprintf(stdout, "%s", "\033[34m");
+				fprintf(stdout, "%s", "\033[34m");
 #endif
-            break;
-        case GREEN:
+				break;
+			case GREEN:
 #if defined(_WIN32)
-            win_set_attributes(FOREGROUND_GREEN, -1);
+				win_set_attributes(FOREGROUND_GREEN, -1);
 #else
-            fprintf(stdout, "%s", "\033[32m");
+				fprintf(stdout, "%s", "\033[32m");
 #endif
-            break;
-        case TEAL:
+				break;
+			case TEAL:
 #if defined(_WIN32)
-            win_set_attributes(FOREGROUND_BLUE | FOREGROUND_GREEN, -1);
+				win_set_attributes(FOREGROUND_BLUE | FOREGROUND_GREEN, -1);
 #else
-            fprintf(stdout, "%s", "\033[36m");
+				fprintf(stdout, "%s", "\033[36m");
 #endif
-            break;
-        case MAROON:
+				break;
+			case MAROON:
 #if defined(_WIN32)
-            win_set_attributes(FOREGROUND_RED, -1);
+				win_set_attributes(FOREGROUND_RED, -1);
 #else
-            fprintf(stdout, "%s", "\033[31m");
+				fprintf(stdout, "%s", "\033[31m");
 #endif
-            break;
-        case PURPLE:
+				break;
+			case PURPLE:
 #if defined(_WIN32)
-            win_set_attributes(FOREGROUND_BLUE | FOREGROUND_RED, -1);
+				win_set_attributes(FOREGROUND_BLUE | FOREGROUND_RED, -1);
 #else
-            fprintf(stdout, "%s", "\033[35m");
+				fprintf(stdout, "%s", "\033[35m");
 #endif
-            break;
-        case OLIVE:
+				break;
+			case OLIVE:
 #if defined(_WIN32)
-            win_set_attributes(FOREGROUND_GREEN | FOREGROUND_RED, -1);
+				win_set_attributes(FOREGROUND_GREEN | FOREGROUND_RED, -1);
 #else
-            fprintf(stdout, "%s", "\033[33m");
+				fprintf(stdout, "%s", "\033[33m");
 #endif
-            break;
-        case SILVER:
+				break;
+			case SILVER:
 #if defined(_WIN32)
-            win_set_attributes(FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE, -1);
+				win_set_attributes(FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE, -1);
 #else
-            fprintf(stdout, "%s", "\033[37m");
+				fprintf(stdout, "%s", "\033[37m");
 #endif
-            break;
-        case GREY:
+				break;
+			case GREY:
 #if defined(_WIN32)
-            win_set_attributes(FOREGROUND_INTENSITY, -1);
+				win_set_attributes(FOREGROUND_INTENSITY, -1);
 #else
-            fprintf(stdout, "%s", "\033[90m");
+				fprintf(stdout, "%s", "\033[90m");
 #endif
-            break;
-        case BLUE:
+				break;
+			case BLUE:
 #if defined(_WIN32)
-            win_set_attributes(FOREGROUND_BLUE | FOREGROUND_INTENSITY, -1);
+				win_set_attributes(FOREGROUND_BLUE | FOREGROUND_INTENSITY, -1);
 #else
-            fprintf(stdout, "%s", "\033[94m");
+				fprintf(stdout, "%s", "\033[94m");
 #endif
-            break;
-        case LIME:
+				break;
+			case LIME:
 #if defined(_WIN32)
-            win_set_attributes(FOREGROUND_GREEN | FOREGROUND_INTENSITY, -1);
+				win_set_attributes(FOREGROUND_GREEN | FOREGROUND_INTENSITY, -1);
 #else
-            fprintf(stdout, "%s", "\033[92m");
+				fprintf(stdout, "%s", "\033[92m");
 #endif
-            break;
-        case AQUA:
+				break;
+			case AQUA:
 #if defined(_WIN32)
-            win_set_attributes(FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_INTENSITY, -1);
+				win_set_attributes(FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_INTENSITY, -1);
 #else
-            fprintf(stdout, "%s", "\033[96m");
+				fprintf(stdout, "%s", "\033[96m");
 #endif
-            break;
-        case RED:
+				break;
+			case RED:
 #if defined(_WIN32)
-            win_set_attributes(FOREGROUND_RED | FOREGROUND_INTENSITY, -1);
+				win_set_attributes(FOREGROUND_RED | FOREGROUND_INTENSITY, -1);
 #else
-            fprintf(stdout, "%s", "\033[91m");
+				fprintf(stdout, "%s", "\033[91m");
 #endif
-            break;
-        case PINK:
+				break;
+			case PINK:
 #if defined(_WIN32)
-            win_set_attributes(FOREGROUND_BLUE | FOREGROUND_RED | FOREGROUND_INTENSITY, -1);
+				win_set_attributes(FOREGROUND_BLUE | FOREGROUND_RED | FOREGROUND_INTENSITY, -1);
 #else
-            fprintf(stdout, "%s", "\033[95m");
+				fprintf(stdout, "%s", "\033[95m");
 #endif
-            break;
-        case YELLOW:
+				break;
+			case YELLOW:
 #if defined(_WIN32)
-            win_set_attributes(FOREGROUND_GREEN | FOREGROUND_RED | FOREGROUND_INTENSITY, -1);
+				win_set_attributes(FOREGROUND_GREEN | FOREGROUND_RED | FOREGROUND_INTENSITY, -1);
 #else
-            fprintf(stdout, "%s", "\033[93m");
+				fprintf(stdout, "%s", "\033[93m");
 #endif
-            break;
-        case WHITE:
+				break;
+			case WHITE:
 #if defined(_WIN32)
-            win_set_attributes(FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED | FOREGROUND_INTENSITY, -1);
+				win_set_attributes(FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED | FOREGROUND_INTENSITY, -1);
 #else
-            fprintf(stdout, "%s", "\033[97m");
+				fprintf(stdout, "%s", "\033[97m");
 #endif
-            break;
-        }
-    }
+				break;
+		}
+	}
 }
 
 void setbgcolor(enum Color color)
 {
-    if (is_terminal(stdout))
-    {
-        switch (color)
-        {
-        case BLACK:
+	if(is_terminal(stdout))
+	{
+		switch(color)
+		{
+			case BLACK:
 #if defined(_WIN32)
-            win_set_attributes(-1, 0);
+				win_set_attributes(-1, 0);
 #else
-            fprintf(stdout, "%s", "\033[40m");
+				fprintf(stdout, "%s", "\033[40m");
 #endif
-            break;
-        case NAVY:
+				break;
+			case NAVY:
 #if defined(_WIN32)
-            win_set_attributes(-1, BACKGROUND_BLUE);
+				win_set_attributes(-1, BACKGROUND_BLUE);
 #else
-            fprintf(stdout, "%s", "\033[44m");
+				fprintf(stdout, "%s", "\033[44m");
 #endif
-            break;
-        case GREEN:
+				break;
+			case GREEN:
 #if defined(_WIN32)
-            win_set_attributes(-1, BACKGROUND_GREEN);
+				win_set_attributes(-1, BACKGROUND_GREEN);
 #else
-            fprintf(stdout, "%s", "\033[42m");
+				fprintf(stdout, "%s", "\033[42m");
 #endif
-            break;
-        case TEAL:
+				break;
+			case TEAL:
 #if defined(_WIN32)
-            win_set_attributes(-1, BACKGROUND_BLUE | BACKGROUND_GREEN);
+				win_set_attributes(-1, BACKGROUND_BLUE | BACKGROUND_GREEN);
 #else
-            fprintf(stdout, "%s", "\033[46m");
+				fprintf(stdout, "%s", "\033[46m");
 #endif
-            break;
-        case MAROON:
+				break;
+			case MAROON:
 #if defined(_WIN32)
-            win_set_attributes(-1, BACKGROUND_RED);
+				win_set_attributes(-1, BACKGROUND_RED);
 #else
-            fprintf(stdout, "%s", "\033[41m");
+				fprintf(stdout, "%s", "\033[41m");
 #endif
-            break;
-        case PURPLE:
+				break;
+			case PURPLE:
 #if defined(_WIN32)
-            win_set_attributes(-1, BACKGROUND_BLUE | BACKGROUND_RED);
+				win_set_attributes(-1, BACKGROUND_BLUE | BACKGROUND_RED);
 #else
-            fprintf(stdout, "%s", "\033[45m");
+				fprintf(stdout, "%s", "\033[45m");
 #endif
-            break;
-        case OLIVE:
+				break;
+			case OLIVE:
 #if defined(_WIN32)
-            win_set_attributes(-1, BACKGROUND_GREEN | BACKGROUND_RED);
+				win_set_attributes(-1, BACKGROUND_GREEN | BACKGROUND_RED);
 #else
-            fprintf(stdout, "%s", "\033[43m");
+				fprintf(stdout, "%s", "\033[43m");
 #endif
-            break;
-        case SILVER:
+				break;
+			case SILVER:
 #if defined(_WIN32)
-            win_set_attributes(-1, BACKGROUND_RED | BACKGROUND_GREEN | BACKGROUND_BLUE);
+				win_set_attributes(-1, BACKGROUND_RED | BACKGROUND_GREEN | BACKGROUND_BLUE);
 #else
-            fprintf(stdout, "%s", "\033[47m");
+				fprintf(stdout, "%s", "\033[47m");
 #endif
-            break;
-        case GREY:
+				break;
+			case GREY:
 #if defined(_WIN32)
-            win_set_attributes(-1, BACKGROUND_INTENSITY);
+				win_set_attributes(-1, BACKGROUND_INTENSITY);
 #else
-            fprintf(stdout, "%s", "\033[100m");
+				fprintf(stdout, "%s", "\033[100m");
 #endif
-            break;
-        case BLUE:
+				break;
+			case BLUE:
 #if defined(_WIN32)
-            win_set_attributes(-1, BACKGROUND_BLUE | BACKGROUND_INTENSITY);
+				win_set_attributes(-1, BACKGROUND_BLUE | BACKGROUND_INTENSITY);
 #else
-            fprintf(stdout, "%s", "\033[104m");
+				fprintf(stdout, "%s", "\033[104m");
 #endif
-            break;
-        case LIME:
+				break;
+			case LIME:
 #if defined(_WIN32)
-            win_set_attributes(-1, BACKGROUND_GREEN | BACKGROUND_INTENSITY);
+				win_set_attributes(-1, BACKGROUND_GREEN | BACKGROUND_INTENSITY);
 #else
-            fprintf(stdout, "%s", "\033[102m");
+				fprintf(stdout, "%s", "\033[102m");
 #endif
-            break;
-        case AQUA:
+				break;
+			case AQUA:
 #if defined(_WIN32)
-            win_set_attributes(-1, BACKGROUND_BLUE | BACKGROUND_GREEN | BACKGROUND_INTENSITY);
+				win_set_attributes(-1, BACKGROUND_BLUE | BACKGROUND_GREEN | BACKGROUND_INTENSITY);
 #else
-            fprintf(stdout, "%s", "\033[106m");
+				fprintf(stdout, "%s", "\033[106m");
 #endif
-            break;
-        case RED:
+				break;
+			case RED:
 #if defined(_WIN32)
-            win_set_attributes(-1, BACKGROUND_RED | BACKGROUND_INTENSITY);
+				win_set_attributes(-1, BACKGROUND_RED | BACKGROUND_INTENSITY);
 #else
-            fprintf(stdout, "%s", "\033[101m");
+				fprintf(stdout, "%s", "\033[101m");
 #endif
-            break;
-        case PINK:
+				break;
+			case PINK:
 #if defined(_WIN32)
-            win_set_attributes(-1, BACKGROUND_BLUE | BACKGROUND_RED | BACKGROUND_INTENSITY);
+				win_set_attributes(-1, BACKGROUND_BLUE | BACKGROUND_RED | BACKGROUND_INTENSITY);
 #else
-            fprintf(stdout, "%s", "\033[105m");
+				fprintf(stdout, "%s", "\033[105m");
 #endif
-            break;
-        case YELLOW:
+				break;
+			case YELLOW:
 #if defined(_WIN32)
-            win_set_attributes(-1, BACKGROUND_GREEN | BACKGROUND_RED | BACKGROUND_INTENSITY);
+				win_set_attributes(-1, BACKGROUND_GREEN | BACKGROUND_RED | BACKGROUND_INTENSITY);
 #else
-            fprintf(stdout, "%s", "\033[103m");
+				fprintf(stdout, "%s", "\033[103m");
 #endif
-            break;
-        case WHITE:
+				break;
+			case WHITE:
 #if defined(_WIN32)
-            win_set_attributes(-1, BACKGROUND_BLUE | BACKGROUND_GREEN | BACKGROUND_RED | BACKGROUND_INTENSITY);
+				win_set_attributes(-1, BACKGROUND_BLUE | BACKGROUND_GREEN | BACKGROUND_RED | BACKGROUND_INTENSITY);
 #else
-            fprintf(stdout, "%s", "\033[107m");
+				fprintf(stdout, "%s", "\033[107m");
 #endif
-            break;
-        }
-    }
+				break;
+		}
+	}
 }
 
 void setcurpos(int x, int y)
 {
-    if (is_terminal(stdout))
-    {
+	if(is_terminal(stdout))
+	{
 #if defined(_WIN32)
-        win_set_cursor_position(x, y);
+		win_set_cursor_position(x, y);
 #else
-        fprintf(stdout, "\033[%d;%dH", y + 1, x + 1);
+		fprintf(stdout, "\033[%d;%dH", y + 1, x + 1);
 #endif
-    }
+	}
+}
+void setcaret(void)
+{
+	deletecaret();
+	printf(">%s", command);
+}
+void deletecaret(void)
+{
+	HANDLE h_console = GetStdHandle(STD_OUTPUT_HANDLE);
+	CONSOLE_SCREEN_BUFFER_INFO info;
+	COORD new_coord;
+	COORD old_coord;
+	DWORD actual;
+	int i;
+	GetConsoleScreenBufferInfo(h_console, &info);
+
+	old_coord = info.dwCursorPosition;
+	new_coord = info.dwCursorPosition;
+
+	new_coord.X = 0;
+
+	for(i = 0; i < info.dwSize.X; i++)
+	{
+		new_coord.X++;
+		WriteConsoleOutputCharacter(h_console, " ", 1, new_coord, &actual);
+	}
+	setcurpos(0, old_coord.Y);
 }

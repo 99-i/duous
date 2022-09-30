@@ -2,6 +2,7 @@
 #include "id.h"
 #include "logger.h"
 #include "server.h"
+#include "lfs.h"
 
 #include <lauxlib.h>
 #include <lua.h>
@@ -56,12 +57,10 @@ struct game *game_create(void)
 
 	uv_loop_init(&game->game_loop);
 	uv_timer_init(&game->game_loop, &game->tick_timer);
-	uv_fs_event_init(&game->game_loop, &game->fs_event);
 
 	return game;
 }
 void game_timer_cb(uv_timer_t *timer);
-void game_fs_event_cb(uv_fs_event_t *handle, const char *filename, int events, int status);
 void game_tick(struct game *game);
 
 void game_run_main_lua(struct game *game);
@@ -75,7 +74,6 @@ void game_start(struct game *game)
 	uv_timer_start(&game->tick_timer, game_timer_cb, 0, 1000 / 100);
 
 
-	uv_fs_event_start(&game->fs_event, game_fs_event_cb, "lib/", UV_FS_EVENT_RECURSIVE);
 
 	uv_run(&game->game_loop, UV_RUN_DEFAULT);
 }
@@ -131,7 +129,7 @@ struct duous_host_function
 };
 
 static int CHOST_duous_packet_listener(lua_State *L);
-
+static int CHOST_print(lua_State *L);
 static int CHOST_Client_get_state(lua_State *L);
 static int CHOST_Client_set_state(lua_State *L);
 static int CHOST_Client_send_packet(lua_State *L);
@@ -160,14 +158,26 @@ static const luaL_Reg client_lib[] =
 #pragma endregion
 
 
-struct duous_host_function hosts[] = {{ "__duous_packet_listener",
-	CHOST_duous_packet_listener }};
+struct duous_host_function hosts[] =
+{
+	{
+		"__duous_packet_listener",
+		CHOST_duous_packet_listener
+	},
+	{
+		"print",
+		CHOST_print
+	}
+};
 
 #define PACKET_LISTENER_ARRAY_NAME "__duouspacketlisteners"
 
 static const char game_key = 'g';
 
 struct game *lua_state_get_game(lua_State *L);
+
+
+
 void game_prep_lua(struct game *game)
 {
 	int i;
@@ -179,7 +189,6 @@ void game_prep_lua(struct game *game)
 
 
 	luaL_openlibs(game->L);
-
 
 	lua_newtable(game->L);
 	luaL_setfuncs(game->L, client_lib, 0);
@@ -193,6 +202,8 @@ void game_prep_lua(struct game *game)
 		struct duous_host_function function = hosts[i];
 		lua_register(game->L, function.name, function.fn);
 	}
+
+
 
 	/*TODO*/
 }
@@ -210,6 +221,13 @@ static int CHOST_duous_packet_listener(lua_State *L)
 	return 0;
 }
 
+static int CHOST_print(lua_State *L)
+{
+	luaL_checkstring(L, -1);
+	const char *str = lua_tostring(L, -1);
+	LOGFMT(("Lua-Engine"), ("%s", str));
+	return 0;
+}
 const char *client_state_to_cstr(client_state state);
 client_state cstr_to_client_state(const char *state);
 static int CHOST_Client_get_state(lua_State *L)
@@ -380,16 +398,6 @@ void game_timer_cb(uv_timer_t *timer)
 	if(game->update_counter % 5 == 0)
 	{
 		game_tick(game);
-	}
-}
-
-void game_fs_event_cb(uv_fs_event_t *handle, const char *filename, int events, int status)
-{
-	struct game *game = (struct game *) ((char *) handle - offsetof(struct game, fs_event));
-	LOGFMT(GAMETAG(), ("%s", filename));
-	if(events & UV_CHANGE)
-	{
-		game_restart_lua(game);
 	}
 }
 

@@ -94,5 +94,6 @@ function ClientboundPacket:append_angle(angle)
 end
 
 --TODO: append_uuid
+--TODO: append_byte_array
 
 return ClientboundPacket

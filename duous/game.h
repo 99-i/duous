@@ -13,7 +13,6 @@ struct game
 	bool lua_ready;
 	uv_loop_t game_loop;
 	uv_timer_t tick_timer;
-	uv_fs_event_t fs_event;
 
 	int update_counter;
 	int tick_count;

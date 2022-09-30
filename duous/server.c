@@ -41,8 +41,6 @@ void server_run(struct server *server)
 	int len;
 	struct sockaddr_in port_addr;
 	int port;
-	/* TODO: run the server. */
-	server->running = true;
 
 	uv_tcp_init(&server->loop, &server->tcp_handle);
 
@@ -60,7 +58,8 @@ void server_run(struct server *server)
 
 	LOGFMT(SERVERTAG(), ("Running Server-%x on port %d", server->id, server->port));
 	uv_thread_create(&server->server_run_thread, (uv_thread_cb) server_loop_start, server);
-	application_add_thread(app, &server->server_run_thread);
+
+	server->running = true;
 }
 
 void game_run(void *arg);

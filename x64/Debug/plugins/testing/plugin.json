@@ -1,0 +1,6 @@
+{
+    "name": "Testing Plugin",
+    "author": "Eric",
+    "version": "1.0",
+    "main": "main.lua"
+}
