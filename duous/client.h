@@ -16,6 +16,7 @@ struct client
     int id;
     uv_tcp_t tcp_handle;
     struct server *server;
+    struct player *player;
     client_state state;
 };
 

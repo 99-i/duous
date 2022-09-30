@@ -131,7 +131,6 @@ static void server_add_client(struct server *server, struct client *client)
 	server->clients = realloc(server->clients, sizeof(*server->clients) * server->num_clients);
 	server->clients[server->num_clients - 1] = client;
 	client->server = server;
-	game_new_player(server->game, client);
 }
 
 static void server_remove_client(struct server *server, int id)

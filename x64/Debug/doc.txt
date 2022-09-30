@@ -12,10 +12,18 @@ classes:
             [key]: [value]
         }
     }
-
     Client: number & {
         get_state(): string
         set_state(string): void
+    }
+    Position: table {
+        x: number,
+        y: number,
+        z: number,
+    }
+    Look: table {
+        yaw: number,
+        pitch: number,
     }
 functions:
     __duous_packet_listener: registers a callback in the form
@@ -30,3 +38,16 @@ functions:
                              values: array of values
                              types: array of types
                              such that types[i] corresponds to the type of the value in values[i]
+    __Client:get_player(client_id: number): get the player id of a client.
+    
+    __Player:get_username(player_id: number): get the player's username
+    __Player:set_username(player_id: number, username: string): set the player's username
+    __Player:get_client(player_id: number): get the player's client's id 
+    __Player:get_position(player_id: number): get the player's position
+    __Player:set_position(player_id: number, position: Position): set the player's position
+    __Player:get_look(player_id: number): get the player's look
+    __Player:set_look(player_id: number, look: Look): set the player's look
+    __Player:get_on_ground(player_id: number): get the player's on ground
+    __Player:set_on_ground(player_id: number, on_ground: bool): set the player's on ground
+    __Player:get_current_slot(player_id: number): get the player's current slot
+    __Player:set_current_slot(player_id: number, slot: number): set the player's current slot

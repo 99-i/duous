@@ -59,8 +59,6 @@ static data_read_fn_pointer read_pointers[NUM_DATA_TYPES] = {
 
 	[DTPOSITION] = (data_read_fn_pointer) __read_position,
 
-	[DTANGLE] = (data_read_fn_pointer) __read_angle,
-
 	[DTUUID] = (data_read_fn_pointer) __read_uuid,
 
 };
@@ -247,9 +245,6 @@ bool packet_read(struct packet *packet, uint8_t *data, int data_size, client_sta
 			case DTPOSITION:
 				SETPACKETDATA(DTPOSITION, _position);
 				break;
-			case DTANGLE:
-				SETPACKETDATA(DTANGLE, _angle);
-				break;
 			case DTUUID:
 				READ(DTUUID, _uuid);
 				memcpy(&v->_uuid, &_uuid, sizeof(_uuid));
@@ -330,9 +325,6 @@ uint8_t *packet_write(struct packet *packet, int *data_size)
 				break;
 			case DTPOSITION:
 				WRITE(position);
-				break;
-			case DTANGLE:
-				WRITE(angle);
 				break;
 			case DTUUID:
 				WRITE(uuid);
@@ -476,9 +468,6 @@ struct packet *lua_State_get_packet(lua_State *L)
 			case DTPOSITION:
 				assert(false && "Unimplemented.");
 				break;
-			case DTANGLE:
-				MAPSET(lua_tonumber, angle);
-				break;
 			case DTUUID:
 				assert(false && "Unimplemented.");
 				break;
@@ -522,8 +511,6 @@ data_type packet_cstr_to_data_type(const char *type)
 		return DTVARLONG;
 	else if(!strcmp(type, "position"))
 		return DTPOSITION;
-	else if(!strcmp(type, "angle"))
-		return DTANGLE;
 	return -1;
 }
 
@@ -766,16 +753,6 @@ bool __read_position(uint8_t *data, int read_max, position *_position, int *size
 		*size = 8;
 	return true;
 }
-bool __read_angle(uint8_t *data, int read_max, int8_t *_angle, int *size)
-{
-	if(read_max < 1)
-		return false;
-	if(_angle)
-		*_angle = data[0];
-	if(size)
-		*size = 1;
-	return true;
-}
 bool __read_uuid(uint8_t *data, int read_max, uuid *uuid, int *size)
 {
 	if(read_max < 16)
@@ -968,14 +945,6 @@ uint8_t *__write_position(position _position, int *size)
 	int_pos |= (int64_t) _position.y;
 
 	return __write_long(int_pos, size);
-}
-uint8_t *__write_angle(int8_t _angle, int *size)
-{
-	uint8_t *data = malloc(1);
-	data[0] = _angle;
-	if(size)
-		*size = 1;
-	return data;
 }
 uint8_t *__write_uuid(uuid uuid, int *size)
 {

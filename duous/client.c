@@ -10,6 +10,7 @@ struct client *client_create(struct server *server)
 	client->id = id();
 	client->server = server;
 	client->state = HANDSHAKING;
+	client->player = NULL;
 	return client;
 }
 

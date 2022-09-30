@@ -2,6 +2,7 @@
 #include "map.h"
 #include "stdint.h"
 #include "client.h"
+#include "types.h"
 #include <lua.h>
 
 typedef enum packet_direction_e
@@ -29,7 +30,6 @@ typedef enum data_type_e
 	/*SLOT,*/
 	/*NBT_TAG,*/
 	DTPOSITION,
-	DTANGLE,
 	DTUUID,
 	/*OPTIONAL_X,*/
 	/*ARRAY_OF_X,*/
@@ -37,13 +37,6 @@ typedef enum data_type_e
 	DTBYTE_ARRAY,
 	NUM_DATA_TYPES
 } data_type;
-
-typedef struct position_s
-{
-	int32_t x;
-	int32_t y;
-	int32_t z;
-} position;
 
 
 typedef uint64_t uuid[2];
@@ -137,7 +130,6 @@ bool __read_string(uint8_t *data, int read_max, char **_string, int *size);
 bool __read_varint(uint8_t *data, int read_max, int32_t *_varint, int *size);
 bool __read_varlong(uint8_t *data, int read_max, int64_t *_varlong, int *size);
 bool __read_position(uint8_t *data, int read_max, position *_position, int *size);
-bool __read_angle(uint8_t *data, int read_max, int8_t *_angle, int *size);
 bool __read_uuid(uint8_t *data, int read_max, uuid *uuid, int *size);
 
 
@@ -154,7 +146,6 @@ uint8_t *__write_string(const char *_string, int *size);
 uint8_t *__write_varint(int32_t _varint, int *size);
 uint8_t *__write_varlong(int64_t _varlong, int *size);
 uint8_t *__write_position(position _position, int *size);
-uint8_t *__write_angle(int8_t _angle, int *size);
 uint8_t *__write_uuid(uuid uuid, int *size);
 
 

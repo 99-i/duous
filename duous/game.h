@@ -20,6 +20,7 @@ struct game
 	int num_players;
 	struct player **players;
 
+	int max_players;
 	struct server *server;
 };
 

@@ -1,6 +1,7 @@
 local ClientboundPacket = require('lib._clientbound_packet')
-
-local Client = {}
+local Player = require("lib._player")
+---@class Client
+Client = {}
 
 ---@alias State
 ---| "HANDSHAKING"
@@ -8,6 +9,7 @@ local Client = {}
 ---| "LOGIN"
 ---| "PLAY"
 
+---@param client_id number
 function Client:new(client_id)
 	self.__index = self
 	self.client_id = client_id
@@ -22,6 +24,12 @@ end
 ---@param state State
 function Client:set_state(state)
 	return __Client:set_state(self.client_id, state)
+end
+
+function Client:create_player()
+	__Game:add_player(self.client_id)
+	self.player_id = __Client:get_player(self.client_id)
+	return Player:new(self.player_id)
 end
 
 --#region
@@ -44,11 +52,11 @@ function Handle_STATUS_Request(packet)
 				\"protocol\": 5 \
 			}, \
 			\"players\": { \
-				\"max\": 100, \
-				\"online\": 5 \
+				\"max\": " .. __Game:get_max_players() .. ", \
+				\"online\": " .. __Game:get_num_players() .. " \
 			}, \
 			\"description\": { \
-				\"text\": \"asdfasdfasdf\" \
+				\"text\": \"A customer server built with C and Lua!\" \
 			} \
 		}")
 	Client:send_packet(response)
@@ -74,13 +82,16 @@ function Handle_LOGIN_LoginStart(packet)
 
 	Client:set_state("PLAY")
 
+	local player = Client:create_player()
+
+
 	local join_game = ClientboundPacket:new(1)
 
 	join_game:append_int(0)
 	join_game:append_byte(1)
 	join_game:append_byte(0)
 	join_game:append_unsigned_byte(0)
-	join_game:append_unsigned_byte(10)
+	join_game:append_unsigned_byte(__Game:get_max_players())
 	join_game:append_string("default")
 
 	Client:send_packet(join_game)

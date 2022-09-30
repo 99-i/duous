@@ -87,12 +87,6 @@ function ClientboundPacket:append_position(position)
     table.insert(self.types, "position")
 end
 
----@param angle number
-function ClientboundPacket:append_angle(angle)
-    table.insert(self.values, angle)
-    table.insert(self.types, "angle")
-end
-
 --TODO: append_uuid
 --TODO: append_byte_array
 
