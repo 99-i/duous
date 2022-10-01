@@ -1,5 +1,6 @@
 local ClientboundPacket = require('lib._clientbound_packet')
 local Player = require("lib._player")
+
 ---@class Client
 Client = {}
 
@@ -84,14 +85,13 @@ function Handle_LOGIN_LoginStart(packet)
 
 	local player = Client:create_player()
 
-
 	local join_game = ClientboundPacket:new(1)
 
-	join_game:append_int(0)
-	join_game:append_byte(1)
+	join_game:append_int(player.player_id)
+	join_game:append_byte(0)
 	join_game:append_byte(0)
 	join_game:append_unsigned_byte(0)
-	join_game:append_unsigned_byte(__Game:get_max_players())
+	join_game:append_unsigned_byte(0)
 	join_game:append_string("default")
 
 	Client:send_packet(join_game)

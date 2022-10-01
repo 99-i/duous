@@ -144,10 +144,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="client.c" />
+    <ClCompile Include="client_lib.c" />
     <ClCompile Include="console.c" />
     <ClCompile Include="game.c" />
+    <ClCompile Include="game_lib.c" />
+    <ClCompile Include="game_lib.h" />
     <ClCompile Include="id.c" />
     <ClCompile Include="lfs.c" />
+    <ClCompile Include="lib.c" />
     <ClCompile Include="linit.c" />
     <ClCompile Include="logger.c" />
     <ClCompile Include="main.c" />
@@ -155,22 +159,28 @@
     <ClCompile Include="packet.c" />
     <ClCompile Include="packet_forms.c" />
     <ClCompile Include="player.c" />
+    <ClCompile Include="player_lib.c" />
     <ClCompile Include="server.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="all_lib.h" />
     <ClInclude Include="client.h" />
+    <ClInclude Include="client_lib.h" />
     <ClInclude Include="console.h" />
     <ClInclude Include="game.h" />
     <ClInclude Include="id.h" />
     <ClInclude Include="lfs.h" />
+    <ClInclude Include="lib.h" />
     <ClInclude Include="logger.h" />
     <ClInclude Include="lprefix.h" />
     <ClInclude Include="main.h" />
     <ClInclude Include="map.h" />
     <ClInclude Include="packet.h" />
     <ClInclude Include="player.h" />
+    <ClInclude Include="player_lib.h" />
     <ClInclude Include="server.h" />
     <ClInclude Include="types.h" />
+    <ClInclude Include="world.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

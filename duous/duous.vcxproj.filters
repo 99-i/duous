@@ -19,6 +19,15 @@
     <Filter Include="Source Files\lfs">
       <UniqueIdentifier>{337ac2f1-88df-44e8-b2bc-caecf0e7989a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\lua">
+      <UniqueIdentifier>{e04ff202-833a-4e1e-8126-1934db6db244}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\lua">
+      <UniqueIdentifier>{d3ca1666-f9bc-47ff-a721-b7a12cfc7cb5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\world">
+      <UniqueIdentifier>{d742737f-b5b9-4037-9e90-5b9adc5ca5fa}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.c">
@@ -60,6 +69,21 @@
     <ClCompile Include="linit.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="game_lib.h">
+      <Filter>Header Files\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="game_lib.c">
+      <Filter>Source Files\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="player_lib.c">
+      <Filter>Source Files\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="client_lib.c">
+      <Filter>Source Files\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="lib.c">
+      <Filter>Source Files\lua</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="client.h">
@@ -100,6 +124,21 @@
     </ClInclude>
     <ClInclude Include="types.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lib.h">
+      <Filter>Header Files\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="client_lib.h">
+      <Filter>Header Files\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="player_lib.h">
+      <Filter>Header Files\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="all_lib.h">
+      <Filter>Header Files\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="world.h">
+      <Filter>Header Files\world</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

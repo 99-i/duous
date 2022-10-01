@@ -71,6 +71,7 @@ local register_all_plugins = function()
     end
 end
 
+print("hi")
 
 
 local GetPacket = function(client_id, packet_data)
@@ -78,8 +79,8 @@ local GetPacket = function(client_id, packet_data)
     local packet = ServerboundPacket:new(packet_data)
 
     client:get_packet(packet)
-
 end
+
 
 __duous_packet_listener(GetPacket)
 

@@ -3,9 +3,9 @@
 
 typedef struct position_s
 {
-	int32_t x;
-	int32_t y;
-	int32_t z;
+	double x;
+	double y;
+	double z;
 } position;
 
 typedef struct look_s

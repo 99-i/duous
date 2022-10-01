@@ -35,7 +35,6 @@ void run_repl(void *arg)
 	int i;
 	while(!server->running);;
 	uv_sleep(1);
-	printf(">");
 	while(c = _getch())
 	{
 		switch(c)

@@ -1,4 +1,3 @@
-local Client = require("lib._client")
 local Look = require("lib._look")
 
 ---@class Player

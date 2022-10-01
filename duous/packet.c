@@ -936,13 +936,16 @@ uint8_t *__write_varlong(int64_t _varlong, int *size)
 uint8_t *__write_position(position _position, int *size)
 {
 	int64_t	int_pos = 0;
-	_position.x &= 0x3ffffff;
-	_position.z &= 0x3ffffff;
-	_position.y &= 0x1fff;
+	int64_t x = _position.x;
+	int64_t y = _position.y;
+	int64_t z = _position.z;
+	x &= 0x3ffffff;
+	z &= 0x3ffffff;
+	y &= 0x1fff;
 
-	int_pos |= (int64_t) _position.x << (64 - 26);
-	int_pos |= (int64_t) _position.z << (64 - 26 - 26);
-	int_pos |= (int64_t) _position.y;
+	int_pos |= (int64_t) x << (64 - 26);
+	int_pos |= (int64_t) z << (64 - 26 - 26);
+	int_pos |= (int64_t) y;
 
 	return __write_long(int_pos, size);
 }
