@@ -8,10 +8,5 @@ int CHOST_Game_set_max_players(lua_State *L);
 int CHOST_Game_get_num_players(lua_State *L);
 int CHOST_Game_add_player(lua_State *L);
 
+DEFINELIB(game, 4)
 
-BEGINLIB(game)
-LIBFUNCTION(Game, get_max_players)
-LIBFUNCTION(Game, set_max_players)
-LIBFUNCTION(Game, get_num_players)
-LIBFUNCTION(Game, add_player)
-ENDLIB()

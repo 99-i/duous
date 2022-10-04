@@ -22,6 +22,10 @@ struct game
 
 	int max_players;
 	struct server *server;
+
+	struct world *world;
+
+
 };
 
 /* constructs a game object. only used by server_create(). */

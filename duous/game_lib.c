@@ -52,3 +52,10 @@ int CHOST_Game_add_player(lua_State *L)
 		return 0;
 	}
 }
+
+BEGINLIB(game)
+LIBFUNCTION(Game, get_max_players)
+LIBFUNCTION(Game, set_max_players)
+LIBFUNCTION(Game, get_num_players)
+LIBFUNCTION(Game, add_player)
+ENDLIB()

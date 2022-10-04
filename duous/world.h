@@ -1,8 +1,9 @@
 #pragma once
-#include <stdbool.h>
 #include "types.h"
+#include <stdio.h>
+#include <stdbool.h>
 
-typedef enum biome_e
+enum biome
 {
 	BIOME_OCEAN,
 	BIOME_PLAINS,
@@ -27,17 +28,37 @@ typedef enum biome_e
 	BIOME_EXTREME_HILLS_EDGE,
 	BIOME_JUNGLE,
 	BIOME_JUNGLE_HILLS
-} biome;
-
-
-
-//16*16*16 blocks
-struct chunk
-{
-	int block_ids[16][16][16];
 };
 
-struct world
+enum dimension
+{
+	DIMENSION_NETHER = -1,
+	DIMENSION_OVERWORLD,
+	DIMENSION_END,
+
+};
+
+
+//level: a number between 0 and 31, 0 being the highest
+//	and 31 being the lowest chunk level (in terms of y coordinate).
+struct chunk
+{
+	int level;
+	uint8_t biomes[16][16];
+	char blocks[16][16][16];
+};
+
+
+//each region is a column of up to 32 chunks (512 block limit).
+struct region
+{
+	int x;
+	int y;
+	int num_chunks;
+	struct chunk *chunks;
+};
+
+struct level
 {
 	bool hardcore;
 	bool generate_structures;
@@ -48,6 +69,23 @@ struct world
 	position spawn_pos;
 	long seed;
 	long time;
-
-
 };
+
+//in memory representation of a world.
+//the regions array is an array of the loaded regions of the world.
+struct world
+{
+	struct level level;
+	int num_regions;
+	struct region *regions;
+};
+
+
+struct world *world_create(void);
+struct world *world_read(const char *path);
+
+bool world_load_chunk(position chunk_coords);
+
+void world_write(const char *path);
+
+

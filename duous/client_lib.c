@@ -2,6 +2,13 @@
 #include "game.h"
 #include "server.h"
 
+BEGINLIB(client)
+LIBFUNCTION(Client, get_state)
+LIBFUNCTION(Client, set_state)
+LIBFUNCTION(Client, send_packet)
+LIBFUNCTION(Client, get_player)
+ENDLIB()
+
 int CHOST_Client_get_state(lua_State *L)
 {
 	struct game *game = lua_State_get_game(L);

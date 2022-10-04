@@ -4,6 +4,7 @@
 #include "server.h"
 #include "lfs.h"
 #include "all_lib.h"
+#include "world.h"
 
 #include <lauxlib.h>
 #include <lua.h>
@@ -57,6 +58,7 @@ struct game *game_create(void)
 	game->players = 0;
 
 	game->max_players = 100;
+	game->world = world_create();
 
 	uv_loop_init(&game->game_loop);
 	uv_timer_init(&game->game_loop, &game->tick_timer);
@@ -75,8 +77,6 @@ void game_start(struct game *game)
 	game_run_main_lua(game);
 
 	uv_timer_start(&game->tick_timer, game_timer_cb, 0, 1000 / 100);
-
-
 
 	uv_run(&game->game_loop, UV_RUN_DEFAULT);
 }

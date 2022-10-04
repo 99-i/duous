@@ -28,6 +28,21 @@
     <Filter Include="Header Files\world">
       <UniqueIdentifier>{d742737f-b5b9-4037-9e90-5b9adc5ca5fa}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\world">
+      <UniqueIdentifier>{dbed0417-af2f-4d09-85f4-a6fb5c988dc7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\cjson">
+      <UniqueIdentifier>{b3d3a76e-03ff-4368-884c-3947fd3ec22d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\cjson">
+      <UniqueIdentifier>{3729780c-66f5-4865-a0be-0b355b781a69}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\util">
+      <UniqueIdentifier>{772854d2-55d4-4b7f-bbee-43ed58dc16f7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\util">
+      <UniqueIdentifier>{6a414636-c9d3-484e-b399-e841de80aee4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.c">
@@ -84,6 +99,15 @@
     <ClCompile Include="lib.c">
       <Filter>Source Files\lua</Filter>
     </ClCompile>
+    <ClCompile Include="world.c">
+      <Filter>Source Files\world</Filter>
+    </ClCompile>
+    <ClCompile Include="cJSON.c">
+      <Filter>Source Files\cjson</Filter>
+    </ClCompile>
+    <ClCompile Include="util.c">
+      <Filter>Source Files\util</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="client.h">
@@ -139,6 +163,12 @@
     </ClInclude>
     <ClInclude Include="world.h">
       <Filter>Header Files\world</Filter>
+    </ClInclude>
+    <ClInclude Include="cJSON.h">
+      <Filter>Header Files\cjson</Filter>
+    </ClInclude>
+    <ClInclude Include="util.h">
+      <Filter>Header Files\util</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

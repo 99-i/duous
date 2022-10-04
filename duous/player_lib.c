@@ -2,6 +2,21 @@
 #include "game.h"
 #include "server.h"
 
+
+BEGINLIB(player)
+LIBFUNCTION(Player, get_username)
+LIBFUNCTION(Player, set_username)
+LIBFUNCTION(Player, get_client)
+LIBFUNCTION(Player, get_position)
+LIBFUNCTION(Player, set_position)
+LIBFUNCTION(Player, get_look)
+LIBFUNCTION(Player, set_look)
+LIBFUNCTION(Player, get_on_ground)
+LIBFUNCTION(Player, set_on_ground)
+LIBFUNCTION(Player, get_current_slot)
+LIBFUNCTION(Player, set_current_slot)
+ENDLIB()
+
 int CHOST_Player_get_username(lua_State *L)
 {
 	struct game *game = lua_State_get_game(L);

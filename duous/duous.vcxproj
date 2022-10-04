@@ -143,6 +143,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="cJSON.c" />
     <ClCompile Include="client.c" />
     <ClCompile Include="client_lib.c" />
     <ClCompile Include="console.c" />
@@ -161,9 +162,12 @@
     <ClCompile Include="player.c" />
     <ClCompile Include="player_lib.c" />
     <ClCompile Include="server.c" />
+    <ClCompile Include="util.c" />
+    <ClCompile Include="world.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="all_lib.h" />
+    <ClInclude Include="cJSON.h" />
     <ClInclude Include="client.h" />
     <ClInclude Include="client_lib.h" />
     <ClInclude Include="console.h" />
@@ -180,6 +184,7 @@
     <ClInclude Include="player_lib.h" />
     <ClInclude Include="server.h" />
     <ClInclude Include="types.h" />
+    <ClInclude Include="util.h" />
     <ClInclude Include="world.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
